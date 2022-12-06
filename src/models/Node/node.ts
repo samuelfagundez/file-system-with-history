@@ -4,12 +4,14 @@ export class Node {
 	private content?: string;
 	private childs: Record<string, Node>;
 	private parent: Node | null;
+	private celv?: Node;
 
 	// Description debe ser algo como 'f name content'
-	constructor(description: string, parent?: Node) {
+	constructor(description: string, parent?: Node, celvNode?: Node) {
 		const splittedDescription = description.split(' ');
 		this.childs = {};
 		this.parent = parent || null;
+		this.celv = celvNode;
 		// Si hay 2 argumentos y el primero es d entonces
 		if (
 			splittedDescription.length === 2 &&
@@ -183,4 +185,44 @@ export class Node {
 			}
 		}
 	}
+
+	/**
+	 * Función para crear un clon de un objeto.
+	 *
+	 * @param node - objeto a clonar.
+	 * @returns El objeto clonado.
+	 */
+	deep_copy(node: Node): Node {
+		const nodeToCopy = { ...node } as Node;
+		if (nodeToCopy.childs) {
+			Object.keys(nodeToCopy.childs).forEach((child) => {
+				nodeToCopy.childs[child] = this.deep_copy(
+					nodeToCopy.childs[child]
+				);
+			});
+		}
+		return node;
+	}
+
+	/**
+	 * Prepara la estructura para el manejo de versiones.
+	 * Falla si algun descendiente o ancestro (incluyéndose) ya posee manejo de versiones.
+	 *
+	 * No retorna nada.
+	 */
+	celv_iniciar() {
+		if (this.celv) {
+			console.log('Ya posee control de versiones');
+		} else {
+			// Guardar en celv una copia del nodo actual. Para hacer esa copia hace falta una función deep copy.
+			this.celv = this.deep_copy(this);
+		}
+	}
+
+	/**
+	 *
+	 *
+	 * No retorna nada.
+	 */
+	celv_historia() {}
 }
