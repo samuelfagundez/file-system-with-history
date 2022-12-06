@@ -96,12 +96,19 @@ export class Node {
 	 *
 	 * @param nombre - nombre del archivo a crear, no puede ser vacío.
 	 */
+	// Esto no lo probe como funciona.
 	eliminar(nombre: string): void {
-		// TODO: hacer borrado recursivo.
 		const exists: boolean = !!this.childs[nombre];
 		if (!exists) {
 			console.log('El archivo a borrar no existe.');
+		} else if (this.childs[nombre].type === 'f') {
+			delete this.childs[nombre];
 		} else {
+			if (this.childs[nombre].childs) {
+				Object.keys(this.childs[nombre].childs).forEach((child) => {
+					this.childs[nombre].eliminar(child);
+				});
+			}
 			delete this.childs[nombre];
 		}
 	}
