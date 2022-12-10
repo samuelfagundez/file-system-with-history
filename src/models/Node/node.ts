@@ -1,228 +1,125 @@
 export class Node {
-	private name: string;
-	private type: 'd' | 'f';
-	private content?: string;
-	private childs: Record<string, Node>;
-	private parent: Node | null;
-	private celv?: Node;
+	public name: string;
+	public type: "d" | "f";
+	public content?: string;
+	public childs: Record<string, Node>;
+	public parent: Node | null;
 
-	// Description debe ser algo como 'f name content'
-	constructor(description: string, parent?: Node, celvNode?: Node) {
-		const splittedDescription = description.split(' ');
+	constructor(name: string, type: string, content?: string, parent?: Node) {
 		this.childs = {};
 		this.parent = parent || null;
-		this.celv = celvNode;
-		// Si hay 2 argumentos y el primero es d entonces
-		if (
-			splittedDescription.length === 2 &&
-			splittedDescription[0] === 'd'
-		) {
-			// Es un directorio
-			this.type = 'd';
-			// Y debe tener un nombre valido
-			if (splittedDescription[1]) {
-				this.name = splittedDescription[1];
-			} else {
-				throw new Error(
-					'El nombre de archivos y directorios no puede ser vacío.'
-				);
-			}
-			// Si hay 2 o 3 argumentos y el primero es f entonces
-		} else if (
-			(splittedDescription.length === 2 ||
-				splittedDescription.length === 3) &&
-			splittedDescription[0] === 'f'
-		) {
-			// es un file
-			this.type = 'f';
-			// y debe tener un nombre válido.
-			if (splittedDescription[1]) {
-				this.name = splittedDescription[1];
-			} else {
-				throw new Error(
-					'El nombre de archivos y directorios no puede ser vacío.'
-				);
-			}
-			// El contenido puede ser vacío.
-			this.content = splittedDescription[2] || '';
-		} else {
-			throw new Error('El archivo o directorio es inválido.');
-		}
+
+		if (type !== "d" && type !== "f") throw new Error("El tipo de nodo es inválido.");
+
+		this.type = type;
+
+		if (!name) throw new Error("El nombre de un directorio no puede ser vacío.");
+		this.name = name;
+
+		if (type !== "f" && content) throw new Error("Un directorio solo puede tener contenido.");
+		this.content = content;
 	}
 
-	/**
-	 * Función que crea un directorio.
-	 * No puede existir un archivo o directorio con ese nombre.
-	 * No retorna nada.
-	 *
-	 * @param nombre - nombre del directorio a crear, no puede ser vacío.
-	 */
-	crear_dir(nombre: string): void {
-		if (nombre) {
-			const exists: boolean = !!this.childs[nombre];
-			if (exists) {
-				console.log('El directorio a crear ya existe.');
-			} else {
-				const newDir = new Node(`d ${nombre}`, this);
-				this.childs = { ...this.childs, [nombre]: newDir };
-			}
-		} else {
-			console.log('El nombre del directorio no puede ser vacío.');
-		}
-	}
 
 	/**
-	 * Función que crea un archivo.
-	 * No puede existir un archivo o directorio con ese nombre.
-	 * No retorna nada.
+	 * Function that creates a directory or a file.
+	 * 
+	 * In order to create succesfully either, the following conditions must be met:
+	 * - The node must be a directory.
+	 * - The name must not be empty.
+	 * - The name must not be the name of an existing file or directory inside the current directory.
 	 *
-	 * @param nombre - nombre del archivo a crear, no puede ser vacío.
+	 * @param nombre - name of the directory or file to create.
+	 * @param type - type of the node to create, must be either 'd' or 'f'.
+	 * 
+	 * @throws Error if the node is a file.
+	 * @throws Error if the name is empty.
+	 * @throws Error if the name is the name of an existing file or directory inside the current directory.
+	 * 
+	 * @returns void
 	 */
-	crear_archivo(nombre: string): void {
-		if (nombre) {
-			const exists: boolean = !!this.childs[nombre];
-			if (exists) {
-				console.log('El archivo a crear ya existe.');
-			} else {
-				const newDir = new Node(`f ${nombre}`, this);
-				this.childs = { ...this.childs, [nombre]: newDir };
-			}
-		} else {
-			console.log('El nombre del archivo no puede ser vacío.');
-		}
-	}
+	public create(nombre: string, type: string): void {
+		if (this.type === "f") throw new Error("Un archivo no puede tener hijos.");
+		if (!nombre) throw new Error("El nombre del directorio no puede ser vacío.");
 
-	/**
-	 * Función que elimina un archivo o directorio del nivel actual.
-	 * No retorna nada.
-	 *
-	 * @param nombre - nombre del archivo a crear, no puede ser vacío.
-	 */
-	// Esto no lo probe como funciona.
-	eliminar(nombre: string): void {
 		const exists: boolean = !!this.childs[nombre];
-		if (!exists) {
-			console.log('El archivo a borrar no existe.');
-		} else if (this.childs[nombre].type === 'f') {
-			delete this.childs[nombre];
-		} else {
-			if (this.childs[nombre].childs) {
-				Object.keys(this.childs[nombre].childs).forEach((child) => {
-					this.childs[nombre].eliminar(child);
-				});
-			}
-			delete this.childs[nombre];
-		}
+		if (exists) throw new Error("El directorio a crear ya existe.");
+
+		const newNode = new Node(nombre, type, undefined, this);
+		this.childs = { ...this.childs, [nombre]: newNode };
 	}
 
 	/**
-	 * Función que lee el contenido de un archivo.
-	 * Falla si el archivo no existe o se trata de leer un directorio.
+	 * Function that deletes a file or directory from the current level.
+	 * 
+	 * If the file is a directory, it will delete all of its children.
 	 *
-	 * @param nombre - nombre del archivo a leer, no puede ser vacío.
-	 *
-	 * @returns El contenido del archivo o undefined en caso de no poder leerlo.
+	 * @param nombre - name of the file or directory to delete.
+	 * 
+	 * @throws Error if the name is empty.
+	 * @throws Error if the file or directory does not exist.
+	 * 
+	 * @returns void
 	 */
-	leer(nombre: string): string | undefined {
-		let exists: boolean = !!this.childs[nombre];
-		if (!exists) {
-			console.log('El archivo a leer no existe.');
-		} else if (exists && this.childs[nombre].type === 'd') {
-			console.log('El archivo a leer es un directorio.');
-		} else {
-			console.log(!!this.childs[nombre].content);
-			return this.childs[nombre].content;
-		}
+	public delete(nombre: string): void {
+		if (!nombre) throw new Error("El nombre del archivo o directorio a eliminar no puede ser vacío.");
+
+		const exists: boolean = !!this.childs[nombre];
+		if (!exists) throw new Error("El archivo o directorio a eliminar no existe.");
+
+		Object.keys(this.childs[nombre].childs).forEach((child) => {
+			this.childs[nombre].delete(child);
+		});
+		delete this.childs[nombre];
 	}
 
 	/**
-	 * Función que permite escribir contenido en un archivo.
-	 * Falla si se trata de escribir en un directorio.
-	 * No retorna nada.
+	 * Function that reads the content of a file.
+	 * 
+	 * If the file does not exist or it is a directory, it will throw an error.
 	 *
-	 * @param nombre - nombre del archivo a leer, no puede ser vacío.
-	 * @param contenido - contenido del archivo.
+	 * @param nombre - name of the file to read.
+	 * 
+	 * @throws Error if the name is empty.
+	 * @throws Error if the file does not exist.
+	 * @throws Error if the file is a directory.
+	 *
+	 * @returns - contenido del archivo.
 	 */
-	escribir(nombre: string, contenido: string): void {
-		let exists: boolean = !!this.childs[nombre];
-		if (!exists) {
-			console.log('El archivo a escribir no existe.');
-		} else if (exists && this.childs[nombre].type === 'd') {
-			console.log('El archivo a escribir es un directorio.');
-		} else {
-			console.log(!!this.childs[nombre].content);
-			this.childs[nombre].content = contenido;
-		}
+	public read(nombre: string): string {
+		if (!nombre) throw new Error("El nombre del archivo a leer no puede ser vacío.");
+
+		const exists: boolean = !!this.childs[nombre];
+		if (!exists) throw new Error("El archivo a leer no existe.");
+
+		if (this.childs[nombre].type !== "f") throw new Error("El archivo a leer no es un archivo.");
+
+		return this.childs[nombre].content || "";
 	}
 
 	/**
-	 * Función que permite navegar entre los directorios.
-	 * No retorna nada.
+	 * Function that allows writing content in a file.
+	 * 
+	 * If the file does not exist or it is a directory, it will throw an error.
 	 *
-	 * @param nombre - nombre del archivo al cual se desea navegar, puede ser undefined para navegar
-	 * al nivel superior, no puede ser vacío.
-	 * @returns Retorna el nodo del nuevo nivel al que se ha navegado o undefined en caso de que no se haya podido navegar.
+	 * @param nombre - name of the file to write.
+	 * @param contenido - content to write in the file.
+	 * 
+	 * @throws Error if the name is empty.
+	 * @throws Error if the file does not exist.
+	 * @throws Error if the file is a directory.
+	 * 
+	 * @returns void
 	 */
-	ir(nombre?: string): Node | undefined {
-		if (nombre) {
-			let exists: boolean = !!this.childs[nombre];
-			if (!exists || this.childs[nombre].type === 'f') {
-				console.log('El archivo a ir no existe.');
-			} else if (exists && this.childs[nombre].type === 'f') {
-				console.log('El archivo a ir no es un directorio.');
-			} else {
-				return this.childs[nombre];
-			}
-		} else {
-			if (typeof nombre === 'string') {
-				console.log('El archivo a ir no existe.');
-			} else {
-				if (this.parent) {
-					return this.parent;
-				} else {
-					console.log('Es la raiz del arbol.');
-				}
-			}
-		}
+	public escribir(nombre: string, content: string): void {
+		if (!nombre) throw new Error("El nombre del archivo a escribir no puede ser vacío.");
+
+		const exists: boolean = !!this.childs[nombre];
+		if (!exists) throw new Error("El archivo a escribir no existe.");
+
+		if (this.childs[nombre].type !== "f") throw new Error("El archivo a escribir no es un archivo.");
+
+		this.childs[nombre].content = content;
 	}
 
-	/**
-	 * Función para crear un clon de un objeto.
-	 *
-	 * @param node - objeto a clonar.
-	 * @returns El objeto clonado.
-	 */
-	deep_copy(node: Node): Node {
-		const nodeToCopy = { ...node } as Node;
-		if (nodeToCopy.childs) {
-			Object.keys(nodeToCopy.childs).forEach((child) => {
-				nodeToCopy.childs[child] = this.deep_copy(
-					nodeToCopy.childs[child]
-				);
-			});
-		}
-		return node;
-	}
-
-	/**
-	 * Prepara la estructura para el manejo de versiones.
-	 * Falla si algun descendiente o ancestro (incluyéndose) ya posee manejo de versiones.
-	 *
-	 * No retorna nada.
-	 */
-	celv_iniciar() {
-		if (this.celv) {
-			console.log('Ya posee control de versiones');
-		} else {
-			// Guardar en celv una copia del nodo actual. Para hacer esa copia hace falta una función deep copy.
-			this.celv = this.deep_copy(this);
-		}
-	}
-
-	/**
-	 *
-	 *
-	 * No retorna nada.
-	 */
-	celv_historia() {}
 }
