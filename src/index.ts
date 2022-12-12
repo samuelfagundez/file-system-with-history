@@ -2,12 +2,13 @@ import { Node } from './models/Node';
 
 const main = () => {
 	try {
-		const root = new Node('d usb');
+		const root = new Node('root', 'd');
 		console.log(root);
-		root.crear_dir('test');
-		root.crear_archivo('test2');
-		root.eliminar('test');
+		root.create('test', 'd');
+		root.create('test2', 'f');
+		root.delete('test');
 		console.log(root);
+		console.log(root.childs['test2'].parent);
 	} catch (e) {
 		const errorHandler = e as { message: string };
 		console.log(errorHandler.message);
