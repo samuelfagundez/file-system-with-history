@@ -51,7 +51,7 @@ export class CELV {
    * 
    * @returns void
    */
-  public create_version(): void {
+  public createVersion(): void {
     if (!this.is_initialized) throw new Error("CELV no está inicializado.");
     if (!this.root_node) throw new Error("No existe un nodo raíz.");
 
