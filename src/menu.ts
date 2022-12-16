@@ -1,9 +1,10 @@
 import { menuText } from '.';
+import { CELV } from './models/CELV';
 import { MenuOptions } from './models/menuOptions';
 import { NodeManagement } from './models/Node';
 
 // This function is in charge of managing the user selected option to display
-const menu = async (opt: MenuOptions, treeManager: NodeManagement) => {
+const menu = async (opt: MenuOptions, treeManager: NodeManagement, celv: CELV) => {
 	let mensajeDeSalida: string = '';
 	const stdin = process.openStdin();
 	switch (opt) {
@@ -110,6 +111,7 @@ const menu = async (opt: MenuOptions, treeManager: NodeManagement) => {
 			break;
 
 		case MenuOptions.celv_iniciar:
+			celv.celv_iniciar(treeManager.actual_node);
 			break;
 
 		case MenuOptions.celv_historia:

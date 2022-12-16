@@ -1,6 +1,7 @@
 import { NodeManagement, Node } from './models/Node';
 import { MenuOptions } from './models/menuOptions';
 import menu from './menu';
+import { CELV } from './models/CELV';
 
 export const menuText = `
 1. Crear directorio
@@ -19,6 +20,7 @@ Indique el número de la operacion a realizar:`;
 const main = () => {
 	let opt: MenuOptions;
 	const treeManager = new NodeManagement(new Node('.', 'd'));
+	const celv = new CELV();
 	// Opening a socket for listening and processing
 	console.clear();
 	console.log(menuText);
@@ -27,7 +29,7 @@ const main = () => {
 		// Also, removing the break line at the end
 		opt = data.toString().slice(0, -1) as MenuOptions;
 		if (opt === MenuOptions.salir) process.exit();
-		menu(opt, treeManager);
+		menu(opt, treeManager, celv);
 	});
 };
 
