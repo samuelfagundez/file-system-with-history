@@ -4,7 +4,11 @@ import { MenuOptions } from './models/menuOptions';
 import { NodeManagement } from './models/Node';
 
 // This function is in charge of managing the user selected option to display
-const menu = async (opt: MenuOptions, treeManager: NodeManagement, celv: CELV) => {
+const menu = async (
+	opt: MenuOptions,
+	treeManager: NodeManagement,
+	celv: CELV
+) => {
 	let mensajeDeSalida: string = '';
 	const stdin = process.openStdin();
 	switch (opt) {
@@ -114,12 +118,22 @@ const menu = async (opt: MenuOptions, treeManager: NodeManagement, celv: CELV) =
 			celv.celv_iniciar(treeManager.actual_node);
 			break;
 
-		case MenuOptions.celv_historia:
-			console.log('obteniendo historia');
-			break;
-
 		case MenuOptions.celv_vamos:
-			console.log('celv yendo');
+			console.log(
+				`Indique el identificador de la version a la cual desea ir:`
+			);
+			mensajeDeSalida = await new Promise<string>((resolve, reject) => {
+				stdin.addListener('data', (data) => {
+					const id = data.toString() as string;
+					try {
+						celv.celv_vamos(id);
+						resolve('Navegación exitosa.');
+					} catch (e) {
+						const errorHandler = e as { message: string };
+						reject(errorHandler.message);
+					}
+				});
+			});
 			break;
 
 		default:
