@@ -22,6 +22,14 @@ export class Node {
 		this.content = content;
 	}
 
+	public crear_dir(nombre: string) {
+		return this.create(nombre, 'd');
+	}
+
+	public crear_archivo(nombre: string) {
+		return this.create(nombre, 'f');
+	}
+
 	/**
 	 * Function that creates a directory or a file.
 	 *
@@ -39,7 +47,7 @@ export class Node {
 	 *
 	 * @returns void
 	 */
-	public create(nombre: string, type: NodeType): void {
+	private create(nombre: string, type: NodeType): void {
 		if (this.type === 'f')
 			throw new Error('Un archivo no puede tener hijos.');
 		if (!nombre)
@@ -64,7 +72,7 @@ export class Node {
 	 *
 	 * @returns void
 	 */
-	public delete(nombre: string): void {
+	public eliminar(nombre: string): void {
 		if (!nombre)
 			throw new Error(
 				'El nombre del archivo o directorio a eliminar no puede ser vacío.'
@@ -75,7 +83,7 @@ export class Node {
 			throw new Error('El archivo o directorio a eliminar no existe.');
 
 		Object.keys(this.childs[nombre].childs).forEach((child) => {
-			this.childs[nombre].delete(child);
+			this.childs[nombre].eliminar(child);
 		});
 		delete this.childs[nombre];
 	}
@@ -93,7 +101,7 @@ export class Node {
 	 *
 	 * @returns - contenido del archivo.
 	 */
-	public read(nombre: string): string {
+	public leer(nombre: string): string {
 		if (!nombre)
 			throw new Error('El nombre del archivo a leer no puede ser vacío.');
 

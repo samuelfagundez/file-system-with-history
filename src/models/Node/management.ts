@@ -15,7 +15,7 @@ export class NodeManagement {
    * @param name - name of the node to go to. If no name is provided, it will go to the root node.
    * @returns the destination node after the traversal.
    */
-  public go(name?: string): Node {
+  public ir(name?: string): Node {
     if (!name) {
       this.go_to_root();
     } else {

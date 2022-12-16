@@ -27,7 +27,7 @@ export class CELV {
 	 *
 	 * @param root
 	 */
-	public init(root: Node): void {
+	public celv_iniciar(root: Node): void {
 		if (this.is_initialized) throw new Error('CELV ya está inicializado.');
 		if (this.root_node) throw new Error('No existe un nodo raíz.');
 
@@ -121,5 +121,27 @@ export class CELV {
 			nodeToCopy.childs[child] = this.deep_copy(nodeToCopy.childs[child]);
 		});
 		return nodeToCopy;
+	}
+
+	/**
+	 * Function that changes the current version of the CELV, in order to explore one of the
+	 * other version available in the version history.
+	 *
+	 * @param versionId - the version that we want to set as the current one.
+	 *
+	 * @throws Error - if the version manager is not initialized
+	 * @throws Error - if there is no root node
+	 * @throws Error - if there is no desired versionId registered as a CELV version.
+	 *
+	 * @returns void
+	 */
+	public celv_vamos(versionId: string): void {
+		if (!this.is_initialized) throw new Error('CELV no está inicializado.');
+		if (!this.root_node) throw new Error('No existe un nodo raíz.');
+		if (!this.version_history.includes(versionId))
+			throw new Error('No existe la versión deseada.');
+
+		this.current_version = versionId;
+		this.root_node = this.version_directory[versionId].root;
 	}
 }
