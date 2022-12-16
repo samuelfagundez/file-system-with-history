@@ -69,6 +69,14 @@ Siguiendo el diseño de módulos propuesto como solución, se tienen las siguien
 
 #### Dificultades Encontradas
 
+* **Menú de opciones**
+
+  Durante la implementación del menú de opciones, donde ya nos encontrabamos muy cortos de tiempo, pudimos notar que al mezclar procesos de entrada de input y no manejarlos apropiadamente, dichos procesos constantemente captaban la entrada de información en todas las instancias posibles, lo que produce un sin fin de resultados inesperados.
+
+  Para hacer el menú de opciones funcionar se debe controlar apropiadamente los procesos que hacen uso del stdin para evitar el colapso de información a través de la aplicación y que la entrada del usuario se perciba apropiadamente. 
+
+  Por los momentos el menú de opciones es inutilizable
+
 ## MANUAL DE USO
 
 A continuación se va a detallar toda la información necesaria para la ejecución del proyecto.
