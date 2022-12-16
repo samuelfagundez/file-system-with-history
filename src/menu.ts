@@ -92,7 +92,21 @@ const menu = async (opt: MenuOptions, treeManager: NodeManagement) => {
 			break;
 
 		case MenuOptions.ir:
-			console.log('yendo');
+			console.log(
+				`Indique el directorio al cual desea navegar, no introduzca nada si desea navegar al nivel superior:`
+			);
+			mensajeDeSalida = await new Promise<string>((resolve, reject) => {
+				stdin.addListener('data', (data) => {
+					const name = data.toString() as string;
+					try {
+						treeManager.ir(name);
+						resolve('Navegación exitosa.');
+					} catch (e) {
+						const errorHandler = e as { message: string };
+						reject(errorHandler.message);
+					}
+				});
+			});
 			break;
 
 		case MenuOptions.celv_iniciar:
